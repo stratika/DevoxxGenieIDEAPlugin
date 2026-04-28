@@ -109,6 +109,14 @@ class ModelConfigJsonTest {
     }
 
     @Test
+    void shouldUseCurrentDevstral2ModelName() {
+        assertThat(config.getProviders().get("Mistral"))
+                .extracting(ModelConfigEntry::getModelName)
+                .contains("devstral-2512")
+                .doesNotContain("devstral-2-25-12");
+    }
+
+    @Test
     void shouldHaveReasonableTokenLimits() {
         for (Map.Entry<String, List<ModelConfigEntry>> entry : config.getProviders().entrySet()) {
             for (ModelConfigEntry model : entry.getValue()) {

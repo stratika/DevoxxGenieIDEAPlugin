@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "lastUpdated": "2026-04-10",
+  "lastUpdated": "2026-04-28",
   "_sources": {
     "Anthropic": "https://platform.claude.com/docs/en/docs/about-claude/models",
     "OpenAI": "https://platform.openai.com/docs/models",
@@ -416,7 +416,7 @@
         "apiKeyUsed": true
       },
       {
-        "modelName": "devstral-2-25-12",
+        "modelName": "devstral-2512",
         "displayName": "Devstral 2",
         "inputCost": 0.4,
         "outputCost": 2,

@@ -215,6 +215,11 @@ dependencies {
         bundledPlugin("org.intellij.plugins.markdown")  // Required by markdown renderer
         composeUI()
         testFramework(TestFrameworkType.Platform)
+        // Override bundled JBR with a custom JDK 21 (the bundled JBR strips
+        // incubator modules, so GPULlama3's --add-modules=jdk.incubator.vector
+        // fails as "Module not found"). Pass any OpenJDK 21 install:
+        //   ./gradlew runIde -PrunIdeJdk="$(sdk home java 21.0.10-tem)"
+        providers.gradleProperty("runIdeJdk").orNull?.let { jetbrainsRuntimeLocal(it) }
     }
     
     val lg4j_version = "1.12.2"
@@ -255,6 +260,11 @@ dependencies {
     implementation("dev.langchain4j:langchain4j-web-search-engine-google-custom:$lg4j_beta_version")
     implementation("dev.langchain4j:langchain4j-web-search-engine-tavily:$lg4j_beta_version")
     implementation("dev.langchain4j:langchain4j-azure-open-ai:$lg4j_version")
+    // beehive-lab/GPULlama3.java in-process integration. Pinned to 1.11.6-beta19 — last
+    // release compiled for Java 21+. Versions ≥ 1.12.0-beta20 require JDK 25.
+    // Loaded via reflection so any future incompatibility surfaces as a friendly
+    // notification rather than a plugin-load failure.
+    implementation("dev.langchain4j:langchain4j-gpu-llama3:1.11.6-beta19")
     implementation("dev.langchain4j:langchain4j-chroma:$lg4j_beta_version")
     implementation("dev.langchain4j:langchain4j-mcp:$lg4j_beta_version")
     implementation("dev.langchain4j:langchain4j-reactor:$lg4j_beta_version")
@@ -413,6 +423,43 @@ tasks {
     //        ./gradlew runIde -PideVersion=2025.1.1
     //        ./gradlew runIde -PideVersion=2025.2.2
     //        ./gradlew runIde -PideVersion=2025.3.3
+    //
+    // For GPULlama3 you also need a non-JBR JDK 21 (the bundled JBR strips
+    // incubator modules):
+    //   ./gradlew runIde -PrunIdeJdk="$(sdk home java 21.0.10-tem)"
+    // To enable GPULlama3 GPU mode (requires TORNADOVM_HOME exported):
+    //   ./gradlew runIde -PrunIdeJdk="$(sdk home java 21.0.10-tem)" -PuseTornado=true
+
+    // GPULlama3 sandbox enabler. gpu-llama3:0.2.2 needs:
+    //   --enable-preview                  — classes are JDK 21 + preview (CF version 65.65535)
+    //   --add-modules=jdk.incubator.vector — FloatTensor.<clinit> references jdk.incubator.vector.*
+    //   -XX:MaxDirectMemorySize           — TornadoVM's HalfFloatArray allocates GGUF tensors off-heap
+    //                                       via Arena.allocate; IntelliJ's default 2 GB cap is too small.
+    //                                       Override with -PrunIdeDirectMem=32g for larger models.
+    //
+    // Optional GPU mode (TornadoVM): pass -PuseTornado=true and ensure $TORNADOVM_HOME is exported.
+    // We splice in @$TORNADOVM_HOME/tornado-argfile, which carries module path, native lib path,
+    // Graal --add-exports, runtime impl system properties, and -XX:+EnableJVMCI. Then check
+    // "GPULlama3 Use GPU" in Settings → Large Language Models.
+    //
+    // We add the flags ONLY to the runIde sandbox — never to test, jar, or buildPlugin.
+    withType<org.jetbrains.intellij.platform.gradle.tasks.RunIdeTask> {
+        val directMem = providers.gradleProperty("runIdeDirectMem").orElse("16g").get()
+        val args = mutableListOf(
+            "--enable-preview",
+            "--add-modules=jdk.incubator.vector",
+            "-XX:MaxDirectMemorySize=$directMem"
+        )
+        val wantTornado = providers.gradleProperty("useTornado").orNull?.toBoolean() == true
+        if (wantTornado) {
+            val tornadoHome = System.getenv("TORNADOVM_HOME")
+                ?: error("-PuseTornado=true requires TORNADOVM_HOME to be set in the environment")
+            val argfile = file("$tornadoHome/tornado-argfile")
+            check(argfile.exists()) { "TornadoVM argfile not found at: $argfile" }
+            args.add("@${argfile.absolutePath}")
+        }
+        jvmArgs(args)
+    }
 
     withType<Jar> {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE

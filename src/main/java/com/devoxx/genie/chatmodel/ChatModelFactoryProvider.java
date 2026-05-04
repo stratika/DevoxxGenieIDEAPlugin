@@ -16,6 +16,7 @@ import com.devoxx.genie.chatmodel.cloud.openrouter.OpenRouterChatModelFactory;
 import com.devoxx.genie.chatmodel.local.customopenai.CustomOpenAIChatModelFactory;
 import com.devoxx.genie.chatmodel.local.exo.ExoChatModelFactory;
 import com.devoxx.genie.chatmodel.local.gpt4all.GPT4AllChatModelFactory;
+import com.devoxx.genie.chatmodel.local.gpullama3.GPULlama3ChatModelFactory;
 import com.devoxx.genie.chatmodel.local.jan.JanChatModelFactory;
 import com.devoxx.genie.chatmodel.local.acprunners.AcpRunnersChatModelFactory;
 import com.devoxx.genie.chatmodel.local.clirunners.CliRunnersChatModelFactory;
@@ -58,6 +59,7 @@ public final class ChatModelFactoryProvider {
             case "Google" -> new GoogleChatModelFactory();
             case "Groq" -> new GroqChatModelFactory();
             case "GPT4All" -> new GPT4AllChatModelFactory();
+            case "GPULlama3", "GPULlama3.java" -> new GPULlama3ChatModelFactory();
             case "Jan" -> new JanChatModelFactory();
             case "LLaMA" -> new LlamaChatModelFactory();
             case "LMStudio" -> new LMStudioChatModelFactory();

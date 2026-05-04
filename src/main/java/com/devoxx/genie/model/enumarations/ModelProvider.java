@@ -15,6 +15,7 @@ public enum ModelProvider {
     LMStudio("LMStudio", Type.LOCAL),
     Exo("Exo", Type.LOCAL),
     Ollama("Ollama", Type.LOCAL),
+    GPULlama3("GPULlama3.java", Type.LOCAL),
     CLIRunners("CLI Runners", Type.LOCAL),
     ACPRunners("ACP Runners", Type.LOCAL),
 

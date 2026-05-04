@@ -153,6 +153,7 @@ public class LlmProviderPanel extends JBPanel<LlmProviderPanel> implements LLMSe
                     case Jan -> stateService.isJanEnabled();
                     case LLaMA -> stateService.isLlamaCPPEnabled();
                     case Exo -> stateService.isExoEnabled();
+                    case GPULlama3 -> stateService.isGpuLlama3Enabled();
                     case CustomOpenAI -> stateService.isCustomOpenAIUrlEnabled();
                     case OpenAI -> stateService.isOpenAIEnabled();
                     case Mistral -> stateService.isMistralEnabled();
@@ -196,6 +197,7 @@ public class LlmProviderPanel extends JBPanel<LlmProviderPanel> implements LLMSe
                provider == ModelProvider.Ollama ||
                provider == ModelProvider.Jan ||
                provider == ModelProvider.GPT4All ||
+               provider == ModelProvider.GPULlama3 ||
                provider == ModelProvider.OpenRouter ||
                provider == ModelProvider.Bedrock;
     }

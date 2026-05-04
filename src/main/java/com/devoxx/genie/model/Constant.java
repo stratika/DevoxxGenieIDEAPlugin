@@ -42,6 +42,10 @@ public class Constant {
     public static final String LLAMA_CPP_MODEL_URL = "http://localhost:8080";
     public static final String EXO_MODEL_URL = "http://localhost:52415/v1/";
 
+    // GPULlama3 (beehive-lab/GPULlama3.java) runs in-process via langchain4j-gpu-llama3.
+    // Users point at a local .gguf file rather than a URL.
+    public static final String GPU_LLAMA3_MODEL_PATH = "";
+
     // ActionCommands
     public static final String SUBMIT_ACTION = "submit";
     public static final String COMBO_BOX_CHANGED = "comboBoxChanged";

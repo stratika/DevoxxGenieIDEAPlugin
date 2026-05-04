@@ -4,6 +4,9 @@ import com.devoxx.genie.model.enumarations.AwsBedrockAuthMode;
 import com.devoxx.genie.service.PropertiesService;
 import com.devoxx.genie.ui.settings.AbstractSettingsComponent;
 import com.intellij.ide.ui.UINumericRange;
+import com.intellij.openapi.fileChooser.FileChooser;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBIntSpinner;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.JBUI;
@@ -103,6 +106,12 @@ public class LLMProvidersComponent extends AbstractSettingsComponent {
     @Getter
     private final JCheckBox exoEnabledCheckBox = new JCheckBox("", stateService.isExoEnabled());
     @Getter
+    private final JTextField gpuLlama3ModelPathField = new JTextField(stateService.getGpuLlama3ModelPath() == null ? "" : stateService.getGpuLlama3ModelPath());
+    @Getter
+    private final JCheckBox gpuLlama3EnabledCheckBox = new JCheckBox("", stateService.isGpuLlama3Enabled());
+    @Getter
+    private final JCheckBox gpuLlama3UseGpuCheckBox = new JCheckBox("", stateService.isGpuLlama3UseGpu());
+    @Getter
     private final JCheckBox customOpenAIUrlEnabledCheckBox = new JCheckBox("", stateService.isCustomOpenAIUrlEnabled());
     @Getter
     private final JCheckBox customOpenAIForceHttp11CheckBox = new JCheckBox("", stateService.isCustomOpenAIForceHttp11());
@@ -193,6 +202,12 @@ public class LLMProvidersComponent extends AbstractSettingsComponent {
         addProviderSettingRow(panel, gbc, "Exo URL", exoEnabledCheckBox,
                 createTextWithInfoButton(exoModelUrlField, "https://genie.devoxx.com/docs/llm-providers/exo"));
         addHintText(panel, gbc, "Distributed AI cluster — auto-creates model instances across connected devices");
+        addProviderSettingRow(panel, gbc, "GPULlama3 Model Path", gpuLlama3EnabledCheckBox,
+                createTextWithInfoButton(createGpuLlama3PathRow(gpuLlama3ModelPathField),
+                        "https://github.com/beehive-lab/GPULlama3.java"));
+        addHintText(panel, gbc, "Path to a local .gguf model file. In-process via langchain4j-gpu-llama3 — requires JBR 25 (and TornadoVM if GPU is enabled).");
+        addProviderSettingRow(panel, gbc, "GPULlama3 Use GPU", gpuLlama3UseGpuCheckBox);
+        addHintText(panel, gbc, "Enable only if your IDE runtime is launched with TornadoVM @argfile JVM args. Otherwise leave off for CPU-only mode.");
         addProviderSettingRow(panel, gbc, "Custom OpenAI URL", customOpenAIUrlEnabledCheckBox, customOpenAIUrlField);
         addProviderSettingRow(panel, gbc, "Custom OpenAI Model", customOpenAIModelNameEnabledCheckBox, customOpenAIModelNameField);
         addProviderSettingRow(panel, gbc, "Custom OpenAI API Key", enableCustomOpenAIApiKeyCheckBox, customOpenAIApiKeyField);
@@ -239,6 +254,27 @@ public class LLMProvidersComponent extends AbstractSettingsComponent {
         urlComponent.setEnabled(checkbox.isSelected());
     }
 
+    private static @NotNull JComponent createGpuLlama3PathRow(@NotNull JTextField pathField) {
+        // Lazy construction of the browse button — TextFieldWithBrowseButton's constructor
+        // triggers IntelliJ service lookups (ClientSessionsManager) that fail in the unit
+        // tests that instantiate LLMProvidersComponent without a full IDE fixture.
+        JPanel panel = new JPanel(new BorderLayout(5, 0));
+        panel.add(pathField, BorderLayout.CENTER);
+
+        JButton browseButton = new JButton("Browse…");
+        browseButton.addActionListener(e -> {
+            FileChooserDescriptor descriptor = new FileChooserDescriptor(true, false, false, false, false, false)
+                    .withTitle("Select GPULlama3 GGUF Model File")
+                    .withDescription("Choose a .gguf model file compatible with beehive-lab/GPULlama3.java");
+            VirtualFile chosen = FileChooser.chooseFile(descriptor, null, null);
+            if (chosen != null) {
+                pathField.setText(chosen.getPath());
+            }
+        });
+        panel.add(browseButton, BorderLayout.EAST);
+        return panel;
+    }
+
     @Override
     public void addListeners() {
         // Keep existing listeners
@@ -259,6 +295,7 @@ public class LLMProvidersComponent extends AbstractSettingsComponent {
         janEnabledCheckBox.addItemListener(e -> updateUrlFieldState(janEnabledCheckBox, janModelUrlField));
         llamaCPPEnabledCheckBox.addItemListener(e -> updateUrlFieldState(llamaCPPEnabledCheckBox, llamaCPPModelUrlField));
         exoEnabledCheckBox.addItemListener(e -> updateUrlFieldState(exoEnabledCheckBox, exoModelUrlField));
+        gpuLlama3EnabledCheckBox.addItemListener(e -> updateUrlFieldState(gpuLlama3EnabledCheckBox, gpuLlama3ModelPathField));
 
         customOpenAIUrlEnabledCheckBox.addItemListener(e -> updateUrlFieldState(customOpenAIUrlEnabledCheckBox, customOpenAIUrlField));
         customOpenAIModelNameEnabledCheckBox.addItemListener(e -> updateUrlFieldState(customOpenAIModelNameEnabledCheckBox, customOpenAIModelNameField));

@@ -108,6 +108,10 @@ public class LLMProvidersConfigurable implements Configurable {
         isModified |= stateService.isExoEnabled() != llmSettingsComponent.getExoEnabledCheckBox().isSelected();
         isModified |= isFieldModified(llmSettingsComponent.getExoModelUrlField(), stateService.getExoModelUrl());
 
+        isModified |= stateService.isGpuLlama3Enabled() != llmSettingsComponent.getGpuLlama3EnabledCheckBox().isSelected();
+        isModified |= stateService.isGpuLlama3UseGpu() != llmSettingsComponent.getGpuLlama3UseGpuCheckBox().isSelected();
+        isModified |= !llmSettingsComponent.getGpuLlama3ModelPathField().getText().equals(stateService.getGpuLlama3ModelPath() == null ? "" : stateService.getGpuLlama3ModelPath());
+
         isModified |= stateService.isCustomOpenAIUrlEnabled() != llmSettingsComponent.getCustomOpenAIUrlEnabledCheckBox().isSelected();
         isModified |= stateService.isCustomOpenAIModelNameEnabled() != llmSettingsComponent.getCustomOpenAIModelNameEnabledCheckBox().isSelected();
         isModified |= stateService.isCustomOpenAIForceHttp11() != llmSettingsComponent.getCustomOpenAIForceHttp11CheckBox().isSelected();
@@ -190,6 +194,10 @@ public class LLMProvidersConfigurable implements Configurable {
         settings.setLlamaCPPEnabled(llmSettingsComponent.getLlamaCPPEnabledCheckBox().isSelected());
         settings.setExoEnabled(llmSettingsComponent.getExoEnabledCheckBox().isSelected());
         settings.setExoModelUrl(llmSettingsComponent.getExoModelUrlField().getText());
+
+        settings.setGpuLlama3Enabled(llmSettingsComponent.getGpuLlama3EnabledCheckBox().isSelected());
+        settings.setGpuLlama3UseGpu(llmSettingsComponent.getGpuLlama3UseGpuCheckBox().isSelected());
+        settings.setGpuLlama3ModelPath(llmSettingsComponent.getGpuLlama3ModelPathField().getText());
 
         settings.setCustomOpenAIUrlEnabled(llmSettingsComponent.getCustomOpenAIUrlEnabledCheckBox().isSelected());
         settings.setCustomOpenAIModelNameEnabled(llmSettingsComponent.getCustomOpenAIModelNameEnabledCheckBox().isSelected());
@@ -300,6 +308,10 @@ public class LLMProvidersConfigurable implements Configurable {
         llmSettingsComponent.getLlamaCPPEnabledCheckBox().setSelected(settings.isLlamaCPPEnabled());
         llmSettingsComponent.getExoEnabledCheckBox().setSelected(settings.isExoEnabled());
         llmSettingsComponent.getExoModelUrlField().setText(settings.getExoModelUrl());
+
+        llmSettingsComponent.getGpuLlama3EnabledCheckBox().setSelected(settings.isGpuLlama3Enabled());
+        llmSettingsComponent.getGpuLlama3UseGpuCheckBox().setSelected(settings.isGpuLlama3UseGpu());
+        llmSettingsComponent.getGpuLlama3ModelPathField().setText(settings.getGpuLlama3ModelPath() == null ? "" : settings.getGpuLlama3ModelPath());
 
         llmSettingsComponent.getCustomOpenAIUrlEnabledCheckBox().setSelected(settings.isCustomOpenAIUrlEnabled());
         llmSettingsComponent.getCustomOpenAIModelNameEnabledCheckBox().setSelected(settings.isCustomOpenAIModelNameEnabled());

@@ -153,6 +153,7 @@ public class LlmProviderPanel extends JBPanel<LlmProviderPanel> implements LLMSe
                     case Jan -> stateService.isJanEnabled();
                     case LLaMA -> stateService.isLlamaCPPEnabled();
                     case Exo -> stateService.isExoEnabled();
+                    case GPULlama3 -> stateService.isGpuLlama3Enabled();
                     case CustomOpenAI -> stateService.isCustomOpenAIUrlEnabled();
                     case OpenAI -> stateService.isOpenAIEnabled();
                     case Mistral -> stateService.isMistralEnabled();

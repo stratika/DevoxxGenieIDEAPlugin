@@ -103,6 +103,10 @@ public class LLMProvidersComponent extends AbstractSettingsComponent {
     @Getter
     private final JCheckBox exoEnabledCheckBox = new JCheckBox("", stateService.isExoEnabled());
     @Getter
+    private final JTextField gpuLlama3ModelUrlField = new JTextField(stateService.getGpuLlama3ModelUrl());
+    @Getter
+    private final JCheckBox gpuLlama3EnabledCheckBox = new JCheckBox("", stateService.isGpuLlama3Enabled());
+    @Getter
     private final JCheckBox customOpenAIUrlEnabledCheckBox = new JCheckBox("", stateService.isCustomOpenAIUrlEnabled());
     @Getter
     private final JCheckBox customOpenAIForceHttp11CheckBox = new JCheckBox("", stateService.isCustomOpenAIForceHttp11());
@@ -193,6 +197,9 @@ public class LLMProvidersComponent extends AbstractSettingsComponent {
         addProviderSettingRow(panel, gbc, "Exo URL", exoEnabledCheckBox,
                 createTextWithInfoButton(exoModelUrlField, "https://genie.devoxx.com/docs/llm-providers/exo"));
         addHintText(panel, gbc, "Distributed AI cluster — auto-creates model instances across connected devices");
+        addProviderSettingRow(panel, gbc, "GPULlama3 Server URL", gpuLlama3EnabledCheckBox,
+                createTextWithDownloadButton(gpuLlama3ModelUrlField, "https://github.com/devoxx/gpullama3-quarkus-server"));
+        addHintText(panel, gbc, "OpenAI-compatible bridge for beehive-lab/GPULlama3.java; runs the inference engine and TornadoVM out-of-process");
         addProviderSettingRow(panel, gbc, "Custom OpenAI URL", customOpenAIUrlEnabledCheckBox, customOpenAIUrlField);
         addProviderSettingRow(panel, gbc, "Custom OpenAI Model", customOpenAIModelNameEnabledCheckBox, customOpenAIModelNameField);
         addProviderSettingRow(panel, gbc, "Custom OpenAI API Key", enableCustomOpenAIApiKeyCheckBox, customOpenAIApiKeyField);
@@ -259,6 +266,7 @@ public class LLMProvidersComponent extends AbstractSettingsComponent {
         janEnabledCheckBox.addItemListener(e -> updateUrlFieldState(janEnabledCheckBox, janModelUrlField));
         llamaCPPEnabledCheckBox.addItemListener(e -> updateUrlFieldState(llamaCPPEnabledCheckBox, llamaCPPModelUrlField));
         exoEnabledCheckBox.addItemListener(e -> updateUrlFieldState(exoEnabledCheckBox, exoModelUrlField));
+        gpuLlama3EnabledCheckBox.addItemListener(e -> updateUrlFieldState(gpuLlama3EnabledCheckBox, gpuLlama3ModelUrlField));
 
         customOpenAIUrlEnabledCheckBox.addItemListener(e -> updateUrlFieldState(customOpenAIUrlEnabledCheckBox, customOpenAIUrlField));
         customOpenAIModelNameEnabledCheckBox.addItemListener(e -> updateUrlFieldState(customOpenAIModelNameEnabledCheckBox, customOpenAIModelNameField));

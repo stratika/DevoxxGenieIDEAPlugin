@@ -88,6 +88,7 @@ public final class DevoxxGenieStateService implements PersistentStateComponent<D
     private String janModelUrl = JAN_MODEL_URL;
     private String llamaCPPUrl = LLAMA_CPP_MODEL_URL;
     private String exoModelUrl = EXO_MODEL_URL;
+    private String gpuLlama3ModelUrl = GPULLAMA3_MODEL_URL;
 
     // Local custom OpenAI-compliant LLM fields
     private String customOpenAIUrl = "";
@@ -101,6 +102,7 @@ public final class DevoxxGenieStateService implements PersistentStateComponent<D
     private boolean isJanEnabled = true;
     private boolean isLlamaCPPEnabled = true;
     private boolean isExoEnabled = false;
+    private boolean isGpuLlama3Enabled = false;
 
     // Local custom OpenAI-compliant LLM fields
     private boolean isCustomOpenAIUrlEnabled = false;

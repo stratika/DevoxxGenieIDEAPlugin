@@ -207,6 +207,14 @@ public interface DevoxxGenieSettingsService {
 
     void setExoModelUrl(String url);
 
+    String getGpuLlama3ModelUrl();
+
+    void setGpuLlama3ModelUrl(String url);
+
+    boolean isGpuLlama3Enabled();
+
+    void setGpuLlama3Enabled(boolean enabled);
+
     Boolean getUseFileInEditor();
 
     void setUseFileInEditor(Boolean useFileInEditor);

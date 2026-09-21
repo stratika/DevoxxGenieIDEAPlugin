@@ -33,6 +33,12 @@ public abstract class LocalChatModelFactory implements ChatModelFactory {
     public boolean providerRunning = false;
     public boolean providerChecked = false;
 
+    /**
+     * Why the last model probe failed, or {@code null} when it has not failed. Kept so the
+     * notification can say what actually went wrong instead of always blaming the endpoint.
+     */
+    private volatile String lastProbeFailure = null;
+
     // LMStudio does not support HTTP_2, see https://github.com/langchain4j/langchain4j/issues/2758
     private final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_1_1) ;
@@ -104,7 +110,36 @@ public abstract class LocalChatModelFactory implements ChatModelFactory {
 
     protected void handleProviderNotRunning() {
         NotificationUtil.sendNotification(ProjectManager.getInstance().getDefaultProject(),
-                "LLM provider is not running. Please start it and try again.");
+                lastProbeFailure != null
+                        ? lastProbeFailure
+                        : "LLM provider is not running. Please start it and try again.");
+    }
+
+    /**
+     * What to tell the user when a model probe failed.
+     *
+     * <p>A probe fails for two unrelated reasons and they need different answers. An
+     * {@link IOException} means the endpoint did not respond, so naming the URL lets the user
+     * check the server. Anything else is a fault on this side of the wire — a misconfigured
+     * factory, an unregistered service whose {@code @NotNull} accessor returned {@code null} —
+     * and telling the user to start a provider that is already running sends them to the wrong
+     * place entirely. That is not hypothetical: an unregistered {@code GPULlama3ModelService}
+     * threw {@code IllegalStateException} out of {@code fetchModels}, escaped the
+     * {@code IOException}-only catch, and left the provider reported as "not running" while the
+     * server was answering {@code /v1/models} in under a millisecond.
+     *
+     * @param providerName the provider's display name
+     * @param url the configured endpoint, or {@code null} when it is not known
+     * @param cause what the probe threw
+     */
+    static String providerUnavailableMessage(String providerName, String url, Throwable cause) {
+        String detail = cause.getMessage() == null ? cause.getClass().getSimpleName() : cause.getMessage();
+        if (cause instanceof IOException) {
+            return providerName + " did not respond at " + (url == null || url.isBlank() ? "its configured URL" : url)
+                    + " (" + detail + "). Start it, or correct the URL in Settings.";
+        }
+        return providerName + " failed while listing models: " + cause.getClass().getSimpleName()
+                + " (" + detail + "). This is a plugin-side error, not a stopped server — see the IDE log.";
     }
 
     private void checkAndFetchModels() {
@@ -128,10 +163,19 @@ public abstract class LocalChatModelFactory implements ChatModelFactory {
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
             cachedModels = modelNames;
             providerRunning = true;
+            lastProbeFailure = null;
         } catch (IOException e) {
             handleGeneralFetchError(e);
             cachedModels = List.of();
             providerRunning = false;
+            lastProbeFailure = providerUnavailableMessage(modelProvider.getName(), safeModelUrl(), e);
+        } catch (RuntimeException e) {
+            // Previously uncaught: a factory fault escaped here, so providerRunning stayed false
+            // while providerChecked became true in the finally, and every later call reported the
+            // provider as not running.
+            cachedModels = List.of();
+            providerRunning = false;
+            lastProbeFailure = providerUnavailableMessage(modelProvider.getName(), safeModelUrl(), e);
         } finally {
             providerChecked = true;
         }
@@ -157,5 +201,15 @@ public abstract class LocalChatModelFactory implements ChatModelFactory {
         cachedModels = null;
         providerChecked = false;
         providerRunning = false;
+        lastProbeFailure = null;
+    }
+
+    /** The configured URL for the failure message; a broken {@code getModelUrl()} must not mask it. */
+    private String safeModelUrl() {
+        try {
+            return getModelUrl();
+        } catch (RuntimeException ignored) {
+            return null;
+        }
     }
 }

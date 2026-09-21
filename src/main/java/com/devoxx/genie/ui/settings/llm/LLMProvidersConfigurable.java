@@ -1,5 +1,6 @@
 package com.devoxx.genie.ui.settings.llm;
 
+import com.devoxx.genie.chatmodel.local.gpullama3.GPULlama3ChatModelFactory;
 import com.devoxx.genie.chatmodel.local.nativ.NativChatModelFactory;
 import com.devoxx.genie.model.enumarations.AwsBedrockAuthMode;
 import com.devoxx.genie.ui.settings.DevoxxGenieStateService;
@@ -99,6 +100,12 @@ public class LLMProvidersConfigurable implements Configurable {
             Integer savedNativFallback = stateService.getNativFallbackContextLength();
             isModified |= savedNativFallback == null || !savedNativFallback.equals(llmSettingsComponent.getNativFallbackContextField().getNumber());
         }
+        isModified |= isFieldModified(llmSettingsComponent.getGpuLlama3ModelUrlField(), stateService.getGpuLlama3ModelUrl());
+        isModified |= (stateService.getGpuLlama3FallbackContextLength() != null) != llmSettingsComponent.getGpuLlama3FallbackContextEnabledCheckBox().isSelected();
+        if (llmSettingsComponent.getGpuLlama3FallbackContextEnabledCheckBox().isSelected()) {
+            Integer savedGpuLlama3Fallback = stateService.getGpuLlama3FallbackContextLength();
+            isModified |= savedGpuLlama3Fallback == null || !savedGpuLlama3Fallback.equals(llmSettingsComponent.getGpuLlama3FallbackContextField().getNumber());
+        }
 
         isModified |= stateService.isCustomOpenAIApiKeyEnabled() != llmSettingsComponent.getEnableCustomOpenAIApiKeyCheckBox().isSelected();
         isModified |= isFieldModified(llmSettingsComponent.getCustomOpenAIUrlField(), stateService.getCustomOpenAIUrl());
@@ -131,6 +138,7 @@ public class LLMProvidersConfigurable implements Configurable {
         isModified |= stateService.isGpt4AllEnabled() != llmSettingsComponent.getGpt4AllEnabledCheckBox().isSelected();
         isModified |= stateService.isJanEnabled() != llmSettingsComponent.getJanEnabledCheckBox().isSelected();
         isModified |= stateService.isNativEnabled() != llmSettingsComponent.getNativEnabledCheckBox().isSelected();
+        isModified |= stateService.isGpuLlama3Enabled() != llmSettingsComponent.getGpuLlama3EnabledCheckBox().isSelected();
         isModified |= stateService.isLlamaCPPEnabled() != llmSettingsComponent.getLlamaCPPEnabledCheckBox().isSelected();
         isModified |= stateService.isExoEnabled() != llmSettingsComponent.getExoEnabledCheckBox().isSelected();
         isModified |= isFieldModified(llmSettingsComponent.getExoModelUrlField(), stateService.getExoModelUrl());
@@ -191,6 +199,12 @@ public class LLMProvidersConfigurable implements Configurable {
                         ? llmSettingsComponent.getNativFallbackContextField().getNumber()
                         : null
         );
+        settings.setGpuLlama3ModelUrl(llmSettingsComponent.getGpuLlama3ModelUrlField().getText());
+        settings.setGpuLlama3FallbackContextLength(
+                llmSettingsComponent.getGpuLlama3FallbackContextEnabledCheckBox().isSelected()
+                        ? llmSettingsComponent.getGpuLlama3FallbackContextField().getNumber()
+                        : null
+        );
 
         settings.setCustomOpenAIUrl(llmSettingsComponent.getCustomOpenAIUrlField().getText());
         settings.setCustomOpenAIModelName(llmSettingsComponent.getCustomOpenAIModelNameField().getText());
@@ -243,6 +257,7 @@ public class LLMProvidersConfigurable implements Configurable {
         settings.setGpt4AllEnabled(llmSettingsComponent.getGpt4AllEnabledCheckBox().isSelected());
         settings.setJanEnabled(llmSettingsComponent.getJanEnabledCheckBox().isSelected());
         settings.setNativEnabled(llmSettingsComponent.getNativEnabledCheckBox().isSelected());
+        settings.setGpuLlama3Enabled(llmSettingsComponent.getGpuLlama3EnabledCheckBox().isSelected());
         settings.setLlamaCPPEnabled(llmSettingsComponent.getLlamaCPPEnabledCheckBox().isSelected());
         settings.setExoEnabled(llmSettingsComponent.getExoEnabledCheckBox().isSelected());
         settings.setExoModelUrl(llmSettingsComponent.getExoModelUrlField().getText());
@@ -451,6 +466,14 @@ public class LLMProvidersConfigurable implements Configurable {
                         : NativChatModelFactory.DEFAULT_CONTEXT_LENGTH
         );
         llmSettingsComponent.getNativFallbackContextField().setEnabled(settings.getNativFallbackContextLength() != null);
+        llmSettingsComponent.getGpuLlama3ModelUrlField().setText(settings.getGpuLlama3ModelUrl());
+        llmSettingsComponent.getGpuLlama3FallbackContextEnabledCheckBox().setSelected(settings.getGpuLlama3FallbackContextLength() != null);
+        llmSettingsComponent.getGpuLlama3FallbackContextField().setNumber(
+                settings.getGpuLlama3FallbackContextLength() != null
+                        ? settings.getGpuLlama3FallbackContextLength()
+                        : GPULlama3ChatModelFactory.DEFAULT_CONTEXT_LENGTH
+        );
+        llmSettingsComponent.getGpuLlama3FallbackContextField().setEnabled(settings.getGpuLlama3FallbackContextLength() != null);
 
         llmSettingsComponent.getCustomOpenAIUrlField().setText(settings.getCustomOpenAIUrl());
         llmSettingsComponent.getCustomOpenAIModelNameField().setText(settings.getCustomOpenAIModelName());
@@ -501,6 +524,7 @@ public class LLMProvidersConfigurable implements Configurable {
         llmSettingsComponent.getGpt4AllEnabledCheckBox().setSelected(settings.isGpt4AllEnabled());
         llmSettingsComponent.getJanEnabledCheckBox().setSelected(settings.isJanEnabled());
         llmSettingsComponent.getNativEnabledCheckBox().setSelected(settings.isNativEnabled());
+        llmSettingsComponent.getGpuLlama3EnabledCheckBox().setSelected(settings.isGpuLlama3Enabled());
         llmSettingsComponent.getLlamaCPPEnabledCheckBox().setSelected(settings.isLlamaCPPEnabled());
         llmSettingsComponent.getExoEnabledCheckBox().setSelected(settings.isExoEnabled());
         llmSettingsComponent.getExoModelUrlField().setText(settings.getExoModelUrl());

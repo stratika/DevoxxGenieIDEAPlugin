@@ -137,6 +137,9 @@ public final class DevoxxGenieStateService implements PersistentStateComponent<D
     private String gpt4allModelUrl = GPT4ALL_MODEL_URL;
     private String janModelUrl = JAN_MODEL_URL;
     private String llamaCPPUrl = LLAMA_CPP_MODEL_URL;
+    private String gpuLlama3ModelUrl = GPULLAMA3_MODEL_URL;
+    // GPULlama3 exposes no context length over HTTP; null means "use GPULlama3ChatModelFactory's default".
+    private Integer gpuLlama3FallbackContextLength;
     private String nativModelUrl = NATIV_MODEL_URL;
     // Nativ's /v1/models exposes no context length; null means "use NativChatModelFactory's default".
     private Integer nativFallbackContextLength;
@@ -174,6 +177,12 @@ public final class DevoxxGenieStateService implements PersistentStateComponent<D
      * models, so the user opts in explicitly.
      */
     private boolean isNativEnabled = false;
+
+    /**
+     * Off by default: GPULlama3 needs its OpenAI-compatible server started separately
+     * (llama-tornado --server) against a specific GGUF model.
+     */
+    private boolean isGpuLlama3Enabled = false;
     private boolean isExoEnabled = false;
 
     // Local custom OpenAI-compliant LLM fields
@@ -937,6 +946,7 @@ public final class DevoxxGenieStateService implements PersistentStateComponent<D
             case "lmStudioModelUrl" -> getLmstudioModelUrl();
             case "ollamaModelUrl" -> getOllamaModelUrl();
             case "nativModelUrl" -> getNativModelUrl();
+            case "gpuLlama3ModelUrl" -> getGpuLlama3ModelUrl();
             case "exoModelUrl" -> getExoModelUrl();
             default -> null;
         };

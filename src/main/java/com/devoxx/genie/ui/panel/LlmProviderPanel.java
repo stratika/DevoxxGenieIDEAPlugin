@@ -186,6 +186,7 @@ public class LlmProviderPanel extends JBPanel<LlmProviderPanel> implements LLMSe
                     case GPT4All -> stateService.isGpt4AllEnabled();
                     case Jan -> stateService.isJanEnabled();
                     case Nativ -> stateService.isNativEnabled();
+                    case GPULlama3 -> stateService.isGpuLlama3Enabled();
                     case LLaMA -> stateService.isLlamaCPPEnabled();
                     case Exo -> stateService.isExoEnabled();
                     case CustomOpenAI -> stateService.isCustomOpenAIUrlEnabled();

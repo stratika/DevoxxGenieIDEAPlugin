@@ -247,6 +247,10 @@ public interface DevoxxGenieSettingsService {
 
     void setLlamaCPPUrl(String text);
 
+    String getGpuLlama3ModelUrl();
+
+    void setGpuLlama3ModelUrl(String url);
+
     String getNativModelUrl();
 
     void setNativModelUrl(String url);

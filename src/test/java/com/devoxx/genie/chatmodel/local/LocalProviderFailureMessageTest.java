@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class LocalProviderFailureMessageTest {
 
-    private static final String PROVIDER = "GPULlama3";
+    private static final String PROVIDER = "jitLLM";
     private static final String URL = "http://localhost:8090/v1/";
 
     @Test
@@ -56,11 +56,11 @@ class LocalProviderFailureMessageTest {
         String message = LocalChatModelFactory.providerUnavailableMessage(
                 PROVIDER, URL,
                 new IllegalStateException(
-                        "@NotNull method GPULlama3ModelService.getInstance must not return null"));
+                        "@NotNull method JitLLMModelService.getInstance must not return null"));
 
         assertThat(message)
                 .contains("IllegalStateException")
-                .contains("GPULlama3ModelService")
+                .contains("JitLLMModelService")
                 .contains("plugin-side error")
                 .doesNotContain("Start it");
     }

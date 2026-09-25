@@ -123,7 +123,7 @@ public abstract class LocalChatModelFactory implements ChatModelFactory {
      * check the server. Anything else is a fault on this side of the wire — a misconfigured
      * factory, an unregistered service whose {@code @NotNull} accessor returned {@code null} —
      * and telling the user to start a provider that is already running sends them to the wrong
-     * place entirely. That is not hypothetical: an unregistered {@code GPULlama3ModelService}
+     * place entirely. That is not hypothetical: an unregistered {@code JitLLMModelService}
      * threw {@code IllegalStateException} out of {@code fetchModels}, escaped the
      * {@code IOException}-only catch, and left the provider reported as "not running" while the
      * server was answering {@code /v1/models} in under a millisecond.

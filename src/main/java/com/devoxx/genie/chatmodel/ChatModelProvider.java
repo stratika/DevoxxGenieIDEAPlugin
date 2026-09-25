@@ -90,8 +90,8 @@ public class ChatModelProvider {
             case Nativ:
                 customChatModel.setBaseUrl(stateService.getNativModelUrl());
                 break;
-            case GPULlama3:
-                customChatModel.setBaseUrl(stateService.getGpuLlama3ModelUrl());
+            case JitLLM:
+                customChatModel.setBaseUrl(stateService.getJitLLMModelUrl());
                 break;
             case Exo:
                 customChatModel.setBaseUrl(stateService.getExoModelUrl());

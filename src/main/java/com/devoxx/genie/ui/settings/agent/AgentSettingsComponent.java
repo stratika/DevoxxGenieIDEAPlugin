@@ -391,7 +391,7 @@ public class AgentSettingsComponent extends AbstractSettingsComponent {
                     case GPT4All -> state.isGpt4AllEnabled();
                     case Jan -> state.isJanEnabled();
                     case Nativ -> state.isNativEnabled();
-                    case GPULlama3 -> state.isGpuLlama3Enabled();
+                    case JitLLM -> state.isJitLLMEnabled();
                     case LLaMA -> state.isLlamaCPPEnabled();
                     case Exo -> state.isExoEnabled();
                     case CustomOpenAI -> state.isCustomOpenAIUrlEnabled();
@@ -624,7 +624,7 @@ public class AgentSettingsComponent extends AbstractSettingsComponent {
                         case GPT4All -> state.isGpt4AllEnabled();
                         case Jan -> state.isJanEnabled();
                     case Nativ -> state.isNativEnabled();
-                    case GPULlama3 -> state.isGpuLlama3Enabled();
+                    case JitLLM -> state.isJitLLMEnabled();
                         case LLaMA -> state.isLlamaCPPEnabled();
                         case Exo -> state.isExoEnabled();
                         case CustomOpenAI -> state.isCustomOpenAIUrlEnabled();

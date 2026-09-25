@@ -23,7 +23,7 @@ import com.devoxx.genie.chatmodel.local.gpt4all.GPT4AllChatModelFactory;
 import com.devoxx.genie.chatmodel.local.jan.JanChatModelFactory;
 import com.devoxx.genie.chatmodel.local.llamacpp.LlamaChatModelFactory;
 import com.devoxx.genie.chatmodel.local.lmstudio.LMStudioChatModelFactory;
-import com.devoxx.genie.chatmodel.local.gpullama3.GPULlama3ChatModelFactory;
+import com.devoxx.genie.chatmodel.local.jitllm.JitLLMChatModelFactory;
 import com.devoxx.genie.chatmodel.local.nativ.NativChatModelFactory;
 import com.devoxx.genie.chatmodel.local.ollama.OllamaChatModelFactory;
 import com.devoxx.genie.model.enumarations.ModelProvider;
@@ -79,7 +79,7 @@ public final class ChatModelFactoryProvider {
         FACTORY_SUPPLIERS.put(ModelProvider.LLaMA, LlamaChatModelFactory::new);
         FACTORY_SUPPLIERS.put(ModelProvider.LMStudio, LMStudioChatModelFactory::new);
         FACTORY_SUPPLIERS.put(ModelProvider.Mistral, MistralChatModelFactory::new);
-        FACTORY_SUPPLIERS.put(ModelProvider.GPULlama3, GPULlama3ChatModelFactory::new);
+        FACTORY_SUPPLIERS.put(ModelProvider.JitLLM, JitLLMChatModelFactory::new);
         FACTORY_SUPPLIERS.put(ModelProvider.Nativ, NativChatModelFactory::new);
         FACTORY_SUPPLIERS.put(ModelProvider.Ollama, OllamaChatModelFactory::new);
         FACTORY_SUPPLIERS.put(ModelProvider.OpenAI, OpenAIChatModelFactory::new);

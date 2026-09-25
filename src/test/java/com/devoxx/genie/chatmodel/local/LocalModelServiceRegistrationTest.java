@@ -62,8 +62,8 @@ class LocalModelServiceRegistrationTest {
 
     /** The service this test was written for, named explicitly so a regression is unambiguous. */
     @Test
-    void gpuLlama3ModelServiceIsRegistered() throws IOException {
+    void jitLLMModelServiceIsRegistered() throws IOException {
         assertThat(Files.readString(PLUGIN_XML))
-                .contains("com.devoxx.genie.chatmodel.local.gpullama3.GPULlama3ModelService");
+                .contains("com.devoxx.genie.chatmodel.local.jitllm.JitLLMModelService");
     }
 }

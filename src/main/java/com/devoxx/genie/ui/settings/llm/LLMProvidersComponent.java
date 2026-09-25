@@ -1,7 +1,7 @@
 package com.devoxx.genie.ui.settings.llm;
 
 import com.devoxx.genie.chatmodel.local.customopenai.CustomOpenAIContextWindow;
-import com.devoxx.genie.chatmodel.local.gpullama3.GPULlama3ChatModelFactory;
+import com.devoxx.genie.chatmodel.local.jitllm.JitLLMChatModelFactory;
 import com.devoxx.genie.chatmodel.local.nativ.NativChatModelFactory;
 import com.devoxx.genie.model.enumarations.AwsBedrockAuthMode;
 import com.devoxx.genie.service.PropertiesService;
@@ -75,15 +75,15 @@ public class LLMProvidersComponent extends AbstractSettingsComponent {
             )
     );
     @Getter
-    private final JTextField gpuLlama3ModelUrlField = new JTextField(stateService.getGpuLlama3ModelUrl());
+    private final JTextField jitLLMModelUrlField = new JTextField(stateService.getJitLLMModelUrl());
     @Getter
-    private final JCheckBox gpuLlama3FallbackContextEnabledCheckBox = new JCheckBox("", stateService.getGpuLlama3FallbackContextLength() != null);
+    private final JCheckBox jitLLMFallbackContextEnabledCheckBox = new JCheckBox("", stateService.getJitLLMFallbackContextLength() != null);
     @Getter
-    private final JBIntSpinner gpuLlama3FallbackContextField = new JBIntSpinner(
+    private final JBIntSpinner jitLLMFallbackContextField = new JBIntSpinner(
             new UINumericRange(
-                    stateService.getGpuLlama3FallbackContextLength() != null
-                            ? stateService.getGpuLlama3FallbackContextLength()
-                            : GPULlama3ChatModelFactory.DEFAULT_CONTEXT_LENGTH,
+                    stateService.getJitLLMFallbackContextLength() != null
+                            ? stateService.getJitLLMFallbackContextLength()
+                            : JitLLMChatModelFactory.DEFAULT_CONTEXT_LENGTH,
                     1,
                     2_000_000
             )
@@ -181,7 +181,7 @@ public class LLMProvidersComponent extends AbstractSettingsComponent {
     @Getter
     private final JCheckBox nativEnabledCheckBox = new JCheckBox("", stateService.isNativEnabled());
     @Getter
-    private final JCheckBox gpuLlama3EnabledCheckBox = new JCheckBox("", stateService.isGpuLlama3Enabled());
+    private final JCheckBox jitLLMEnabledCheckBox = new JCheckBox("", stateService.isJitLLMEnabled());
     @Getter
     private final JTextField exoModelUrlField = new JTextField(stateService.getExoModelUrl());
     @Getter
@@ -406,11 +406,11 @@ public class LLMProvidersComponent extends AbstractSettingsComponent {
         addHintText(localPanel, gbc, "Run MLX models locally on Apple Silicon. Nativ defaults to port 8080 — the same port as Llama.c++ — so change one of the two if you want both enabled.");
         addProviderSettingRow(localPanel, gbc, "Nativ Fallback Context", nativFallbackContextEnabledCheckBox, nativFallbackContextField);
         addHintText(localPanel, gbc, "Nativ's <code>/v1/models</code> does not report a context length; DevoxxGenie assumes " + NativChatModelFactory.DEFAULT_CONTEXT_LENGTH + " tokens unless you set it here.");
-        addProviderSettingRow(localPanel, gbc, "GPULlama3 URL", gpuLlama3EnabledCheckBox,
-                createTextWithDownloadButton(gpuLlama3ModelUrlField, "https://github.com/beehive-lab/GPULlama3.java"));
-        addHintText(localPanel, gbc, "Run GGUF models on the GPU via TornadoVM. Needs GPULlama3 v1.0.0+ started with its own OpenAI-compatible server: <code>llama-tornado --server --model &lt;model.gguf&gt; --port 8090</code>.");
-        addProviderSettingRow(localPanel, gbc, "GPULlama3 Fallback Context", gpuLlama3FallbackContextEnabledCheckBox, gpuLlama3FallbackContextField);
-        addHintText(localPanel, gbc, "GPULlama3's <code>/v1/models</code> does not report a context length; DevoxxGenie assumes " + GPULlama3ChatModelFactory.DEFAULT_CONTEXT_LENGTH + " tokens unless you set it here.");
+        addProviderSettingRow(localPanel, gbc, "jitLLM URL", jitLLMEnabledCheckBox,
+                createTextWithDownloadButton(jitLLMModelUrlField, "https://github.com/beehive-lab/jitllm"));
+        addHintText(localPanel, gbc, "Run GGUF models on the GPU via TornadoVM. Needs jitLLM v1.0.0+ started with its own OpenAI-compatible server: <code>jitllm serve -m &lt;model.gguf&gt; --gpu --port 8090</code>.");
+        addProviderSettingRow(localPanel, gbc, "jitLLM Fallback Context", jitLLMFallbackContextEnabledCheckBox, jitLLMFallbackContextField);
+        addHintText(localPanel, gbc, "jitLLM's <code>/v1/models</code> does not report a context length; DevoxxGenie assumes " + JitLLMChatModelFactory.DEFAULT_CONTEXT_LENGTH + " tokens unless you set it here.");
         addProviderSettingRow(localPanel, gbc, "Exo URL", exoEnabledCheckBox,
                 createTextWithInfoButton(exoModelUrlField, "https://genie.devoxx.com/docs/llm-providers/exo"));
         addHintText(localPanel, gbc, "Distributed AI cluster — auto-creates model instances across connected devices");
@@ -523,8 +523,8 @@ public class LLMProvidersComponent extends AbstractSettingsComponent {
         llamaCPPEnabledCheckBox.addItemListener(e -> updateUrlFieldState(llamaCPPEnabledCheckBox, llamaCPPModelUrlField));
         nativEnabledCheckBox.addItemListener(e -> updateUrlFieldState(nativEnabledCheckBox, nativModelUrlField));
         nativFallbackContextEnabledCheckBox.addItemListener(e -> updateUrlFieldState(nativFallbackContextEnabledCheckBox, nativFallbackContextField));
-        gpuLlama3EnabledCheckBox.addItemListener(e -> updateUrlFieldState(gpuLlama3EnabledCheckBox, gpuLlama3ModelUrlField));
-        gpuLlama3FallbackContextEnabledCheckBox.addItemListener(e -> updateUrlFieldState(gpuLlama3FallbackContextEnabledCheckBox, gpuLlama3FallbackContextField));
+        jitLLMEnabledCheckBox.addItemListener(e -> updateUrlFieldState(jitLLMEnabledCheckBox, jitLLMModelUrlField));
+        jitLLMFallbackContextEnabledCheckBox.addItemListener(e -> updateUrlFieldState(jitLLMFallbackContextEnabledCheckBox, jitLLMFallbackContextField));
         exoEnabledCheckBox.addItemListener(e -> updateUrlFieldState(exoEnabledCheckBox, exoModelUrlField));
 
         customOpenAIUrlEnabledCheckBox.addItemListener(e -> updateUrlFieldState(customOpenAIUrlEnabledCheckBox, customOpenAIUrlField));
@@ -550,7 +550,7 @@ public class LLMProvidersComponent extends AbstractSettingsComponent {
 
         updateUrlFieldState(lmStudioFallbackContextEnabledCheckBox, lmStudioFallbackContextField);
         updateUrlFieldState(nativFallbackContextEnabledCheckBox, nativFallbackContextField);
-        updateUrlFieldState(gpuLlama3FallbackContextEnabledCheckBox, gpuLlama3FallbackContextField);
+        updateUrlFieldState(jitLLMFallbackContextEnabledCheckBox, jitLLMFallbackContextField);
     }
 
     private void addAzureOpenAIPanel(JPanel panel, GridBagConstraints gbc) {

@@ -67,9 +67,9 @@ public class Constant {
     public static final String LLAMA_CPP_MODEL_URL = "http://localhost:8080";
     // Nativ shares llama.cpp's default port 8080, which is why the provider ships disabled by default.
     public static final String NATIV_MODEL_URL = "http://localhost:8080/v1/";
-    // GPULlama3 serves on 8080 by default; DevoxxGenie defaults to 8090 so the provider does not
+    // jitLLM serves on 8080 by default; DevoxxGenie defaults to 8090 so the provider does not
     // collide with Llama.c++ and Nativ. Start the server with --port 8090 to match, or edit this URL.
-    public static final String GPULLAMA3_MODEL_URL = "http://localhost:8090/v1/";
+    public static final String JITLLM_MODEL_URL = "http://localhost:8090/v1/";
     public static final String EXO_MODEL_URL = "http://localhost:52415/v1/";
 
     // ActionCommands

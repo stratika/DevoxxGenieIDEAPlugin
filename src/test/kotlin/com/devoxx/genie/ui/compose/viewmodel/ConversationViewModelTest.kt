@@ -2,7 +2,9 @@ package com.devoxx.genie.ui.compose.viewmodel
 
 import com.devoxx.genie.model.activity.ActivityMessage
 import com.devoxx.genie.model.activity.ActivitySource
+import com.devoxx.genie.model.LanguageModel
 import com.devoxx.genie.model.agent.AgentType
+import com.devoxx.genie.model.enumarations.ModelProvider
 import com.devoxx.genie.model.request.ChatMessageContext
 import com.devoxx.genie.ui.compose.model.ActivityStatus
 import com.devoxx.genie.ui.compose.model.ConversationState
@@ -739,4 +741,24 @@ class ConversationViewModelTest {
 
     private fun intermediateResponse(text: String): ActivityMessage =
         agentMessage(AgentType.INTERMEDIATE_RESPONSE) { it.result(text) }
+
+    @Test
+    fun `model header shows the provider display name, not the enum constant`() {
+        val viewModel = ConversationViewModel()
+        viewModel.addUserPromptMessage(
+            ChatMessageContext.builder()
+                .id("msg-1")
+                .userPrompt("hi")
+                .languageModel(
+                    LanguageModel.builder()
+                        .provider(ModelProvider.JitLLM)
+                        .modelName("Llama-3.2-3B-Instruct-F16")
+                        .build()
+                )
+                .build()
+        )
+
+        val msg = (viewModel.state as ConversationState.Chat).messages.first { it.id == "msg-1" }
+        assertThat(msg.modelName).isEqualTo("jitLLM : Llama-3.2-3B-Instruct-F16")
+    }
 }

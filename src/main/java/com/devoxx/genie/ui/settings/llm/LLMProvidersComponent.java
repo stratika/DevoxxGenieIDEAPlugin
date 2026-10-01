@@ -410,7 +410,7 @@ public class LLMProvidersComponent extends AbstractSettingsComponent {
                 createTextWithDownloadButton(jitLLMModelUrlField, "https://github.com/beehive-lab/jitllm"));
         addHintText(localPanel, gbc, "Run GGUF models on the GPU via TornadoVM. Needs jitLLM v1.0.0+ started with its own OpenAI-compatible server: <code>jitllm serve -m &lt;model.gguf&gt; --gpu --port 8090</code>.");
         addProviderSettingRow(localPanel, gbc, "jitLLM Fallback Context", jitLLMFallbackContextEnabledCheckBox, jitLLMFallbackContextField);
-        addHintText(localPanel, gbc, "jitLLM's <code>/v1/models</code> does not report a context length; DevoxxGenie assumes " + JitLLMChatModelFactory.DEFAULT_CONTEXT_LENGTH + " tokens unless you set it here.");
+        addHintText(localPanel, gbc, "Used only when jitLLM's <code>/v1/models</code> does not report a context length (older builds); DevoxxGenie then assumes " + JitLLMChatModelFactory.DEFAULT_CONTEXT_LENGTH + " tokens unless you set it here.");
         addProviderSettingRow(localPanel, gbc, "Exo URL", exoEnabledCheckBox,
                 createTextWithInfoButton(exoModelUrlField, "https://genie.devoxx.com/docs/llm-providers/exo"));
         addHintText(localPanel, gbc, "Distributed AI cluster — auto-creates model instances across connected devices");

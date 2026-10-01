@@ -21,10 +21,9 @@ import java.io.IOException;
 public class JitLLMChatModelFactory extends LocalChatModelFactory {
 
     /**
-     * jitLLM's {@code /v1/models} response carries no context-length field (see
-     * {@link JitLLMModelEntryDTO}) and {@code /health} reports only liveness, so the window has
-     * to be assumed. 8k is the conservative floor that the Llama-3 family meets; users running
-     * larger-context models raise it via the "jitLLM Fallback Context" setting.
+     * Used only when the server does not report {@code context_length} on {@code /v1/models}
+     * (older jitLLM builds, see {@link JitLLMModelEntryDTO}) and no "jitLLM Fallback Context" is
+     * configured. 8k is the conservative floor that the Llama-3 family meets.
      */
     public static final int DEFAULT_CONTEXT_LENGTH = 8000;
 
@@ -55,7 +54,6 @@ public class JitLLMChatModelFactory extends LocalChatModelFactory {
     @Override
     protected LanguageModel buildLanguageModel(Object model) {
         JitLLMModelEntryDTO jitLLMModel = (JitLLMModelEntryDTO) model;
-        Integer configuredFallback = DevoxxGenieStateService.getInstance().getJitLLMFallbackContextLength();
         String modelId = jitLLMModel.getId() == null ? "" : jitLLMModel.getId();
         return LanguageModel.builder()
                 .provider(modelProvider)
@@ -63,8 +61,17 @@ public class JitLLMChatModelFactory extends LocalChatModelFactory {
                 .displayName(modelId)
                 .inputCost(0)
                 .outputCost(0)
-                .inputMaxTokens(configuredFallback != null ? configuredFallback : DEFAULT_CONTEXT_LENGTH)
+                .inputMaxTokens(resolveContextLength(jitLLMModel))
                 .apiKeyUsed(false)
                 .build();
+    }
+
+    private static int resolveContextLength(@NotNull JitLLMModelEntryDTO model) {
+        Integer reported = model.getContextLength();
+        if (reported != null && reported > 0) {
+            return reported;
+        }
+        Integer configuredFallback = DevoxxGenieStateService.getInstance().getJitLLMFallbackContextLength();
+        return configuredFallback != null ? configuredFallback : DEFAULT_CONTEXT_LENGTH;
     }
 }

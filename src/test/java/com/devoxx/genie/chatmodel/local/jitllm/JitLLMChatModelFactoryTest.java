@@ -4,6 +4,8 @@ import com.devoxx.genie.model.CustomChatModel;
 import com.devoxx.genie.model.LanguageModel;
 import com.devoxx.genie.model.enumarations.ModelProvider;
 import com.devoxx.genie.model.jitllm.JitLLMModelEntryDTO;
+import com.devoxx.genie.model.jitllm.JitLLMModelsResponseDTO;
+import com.google.gson.Gson;
 import com.devoxx.genie.ui.settings.DevoxxGenieStateService;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
@@ -58,9 +60,31 @@ class JitLLMChatModelFactoryTest {
     }
 
     /**
-     * jitLLM reports no context length on {@code /v1/models} (and {@code /health} carries only a
-     * status), so an unconfigured fallback must land on the factory's documented default rather
-     * than 0, which would break the token/usage bar.
+     * jitLLM caps a reply at 256 tokens when the request carries no {@code max_tokens}, so the
+     * streaming model must forward the configured limit just like the non-streaming one does —
+     * otherwise every streamed chat reply is cut off mid-sentence.
+     */
+    @Test
+    void createStreamingChatModel_forwardsMaxTokens() {
+        try (MockedStatic<DevoxxGenieStateService> ignored = Mockito.mockStatic(DevoxxGenieStateService.class)) {
+            DevoxxGenieStateService state = mock(DevoxxGenieStateService.class);
+            when(DevoxxGenieStateService.getInstance()).thenReturn(state);
+            when(state.getJitLLMModelUrl()).thenReturn("http://localhost:8090/v1/");
+
+            CustomChatModel customChatModel = new CustomChatModel();
+            customChatModel.setModelName("gemma-4-E2B-it-Q4_0");
+            customChatModel.setMaxTokens(4000);
+
+            StreamingChatModel result = new JitLLMChatModelFactory().createStreamingChatModel(customChatModel);
+
+            assertThat(result.defaultRequestParameters().maxOutputTokens()).isEqualTo(4000);
+        }
+    }
+
+    /**
+     * Older jitLLM builds report no context length on {@code /v1/models}, so an unconfigured
+     * fallback must land on the factory's documented default rather than 0, which would break the
+     * token/usage bar.
      */
     @Test
     void buildLanguageModel_withoutConfiguredFallback_usesDefaultContextLength() {
@@ -91,6 +115,27 @@ class JitLLMChatModelFactoryTest {
 
             LanguageModel model = new JitLLMChatModelFactory()
                     .buildLanguageModel(modelEntry("Llama-3.2-1B-Instruct-Q8_0"));
+
+            assertThat(model.getInputMaxTokens()).isEqualTo(131_072);
+        }
+    }
+
+    /**
+     * Newer jitLLM builds report the {@code --ctx-size} the server was started with as
+     * {@code context_length}. That is the real window, so it wins over the user's fallback.
+     */
+    @Test
+    void buildLanguageModel_withServerReportedContextLength_usesReportedValue() {
+        String body = "{\"object\":\"list\",\"data\":[{\"id\":\"gemma-4-E2B-it-Q4_0\",\"object\":\"model\","
+                + "\"created\":0,\"owned_by\":\"jitllm\",\"context_length\":131072}]}";
+        JitLLMModelEntryDTO entry = new Gson().fromJson(body, JitLLMModelsResponseDTO.class).getData().get(0);
+
+        try (MockedStatic<DevoxxGenieStateService> ignored = Mockito.mockStatic(DevoxxGenieStateService.class)) {
+            DevoxxGenieStateService state = mock(DevoxxGenieStateService.class);
+            when(DevoxxGenieStateService.getInstance()).thenReturn(state);
+            when(state.getJitLLMFallbackContextLength()).thenReturn(8_000);
+
+            LanguageModel model = new JitLLMChatModelFactory().buildLanguageModel(entry);
 
             assertThat(model.getInputMaxTokens()).isEqualTo(131_072);
         }

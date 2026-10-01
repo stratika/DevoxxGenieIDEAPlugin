@@ -90,6 +90,7 @@ public abstract class LocalChatModelFactory implements ChatModelFactory {
                 .modelName(customChatModel.getModelName())
                 .temperature(customChatModel.getTemperature())
                 .topP(customChatModel.getTopP())
+                .maxTokens(customChatModel.getMaxTokens())
                 .timeout(Duration.ofSeconds(customChatModel.getTimeout()))
                 .returnThinking(ThinkingSupport.isEnabled())
                 .listeners(getListener())
